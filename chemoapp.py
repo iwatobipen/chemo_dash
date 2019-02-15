@@ -132,8 +132,8 @@ def update_graph(contents, x_column_name, y_column_name):
      ]
 )
 def update_pca(contents):
-    mols = parse_contents(contents[0])
     fps = []
+    mols = parse_contents(contents[0])
     for i, mol in enumerate(mols):
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=512)
         arr = np.zeros((0,))
