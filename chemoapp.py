@@ -95,11 +95,12 @@ app.layout = html.Div(children=[
         html.Div([html.Div(id="molimg")], className="four columns"),
         html.Div([dcc.Graph(id='example-graph')], className="eight columns")
         ], className="row"),
-    html.Div([dcc.Graph(id='chemical-space')])
+    #html.Div([dcc.Graph(id='chemical-space')])
     ])
 
 @app.callback(
     Output('example-graph', 'figure'),
+     
     [Input('upload-data', 'contents'),
      Input('x-column', 'value'),
      Input('y-column', 'value')]
@@ -110,6 +111,7 @@ def update_graph(contents, x_column_name, y_column_name):
         AllChem.Compute2DCoords(mol)
     x = [descdict[x_column_name](mol) for mol in mols]
     y = [descdict[y_column_name](mol) for mol in mols]
+
     return {'data':[go.Scatter(
         x=x,
         y=y,
@@ -126,38 +128,7 @@ def update_graph(contents, x_column_name, y_column_name):
         yaxis={'title':y_column_name}
     )}
 
-@app.callback(
-    Output('chemical-space', 'figure'),
-    [Input('upload-data', 'contents'),
-     ]
-)
-def update_pca(contents):
-    fps = []
-    mols = parse_contents(contents[0])
-    for i, mol in enumerate(mols):
-        fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=512)
-        arr = np.zeros((0,))
-        DataStructs.ConvertToNumpyArray(fp, arr)
-        fps.append(arr)
-    pca = PCA(n_components=2)
-    res = pca.fit_transform(fps)
-    x = res[:,0]
-    y = res[:,1]
-    return {'data':[go.Scatter(
-        x=x,
-        y=y,
-        #text=['mol_{}'.format(i) for i in range(len(mols))],
-        text=[Chem.MolToSmiles(mol) for mol in mols],
-        mode='markers',
-        marker={
-            'size':15,
-            'opacity':0.5
-        }
-    )],
-    'layout':go.Layout(
-        xaxis={'title':'PC1'},
-        yaxis={'title':'PC2'}
-    )}
+
 @app.callback(
     Output('molimg', 'children'),
     [Input('example-graph', 'hoverData'),
